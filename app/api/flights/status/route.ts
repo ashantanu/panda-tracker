@@ -9,8 +9,14 @@ import {
 
 const DATA_FILE = join(process.cwd(), "data", "flights.json")
 
+interface FlightEntry {
+  id: string
+  date: string
+  origin?: string
+}
+
 interface FlightsData {
-  flights: { id: string; date: string }[]
+  flights: FlightEntry[]
   cachedFlightDetails: Record<string, unknown>
 }
 
@@ -45,8 +51,8 @@ export async function GET(request: NextRequest) {
     // Only fetch status for flights within the tracking window
     for (const flight of flightsData.flights) {
       if (isWithinTrackingWindow(flight.date)) {
-        console.log(`Fetching status for ${flight.id} on ${flight.date}...`)
-        const status = await fetchFlightStatus(flight.id, flight.date, apiKey)
+        console.log(`Fetching status for ${flight.id} on ${flight.date}${flight.origin ? ` from ${flight.origin}` : ""}...`)
+        const status = await fetchFlightStatus(flight.id, flight.date, apiKey, flight.origin)
         if (status) {
           statuses.push(status)
         }

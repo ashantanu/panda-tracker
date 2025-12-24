@@ -88,8 +88,10 @@ export interface CachedFlightDetails {
     city: string
     timezone: string
   }
-  scheduledDeparture: string
-  scheduledArrival: string
+  scheduledDepartureUTC: string
+  scheduledArrivalUTC: string
+  scheduledDepartureLocal: string  // Formatted in origin timezone
+  scheduledArrivalLocal: string    // Formatted in destination timezone
   aircraftType: string
   fetchedAt: string
 }
@@ -109,11 +111,13 @@ export interface FlightStatus {
 
 /**
  * Fetch flight details from FlightAware AeroAPI
+ * @param origin - Optional origin airport code (e.g., "SFO") to filter multi-leg flights
  */
 export async function fetchFlightDetails(
   flightId: string,
   date: string,
-  apiKey: string
+  apiKey: string,
+  origin?: string
 ): Promise<CachedFlightDetails | null> {
   try {
     // Format: AA1234 -> AA1234, date: 2025-12-25
@@ -143,7 +147,25 @@ export async function fetchFlightDetails(
       return null
     }
 
-    const flight = data.flights[0]
+    // Find the correct flight segment if origin is specified
+    let flight = data.flights[0]
+    if (origin) {
+      const originUpper = origin.toUpperCase()
+      const matchingFlight = data.flights.find(
+        (f) =>
+          f.origin.code_iata?.toUpperCase() === originUpper ||
+          f.origin.code?.toUpperCase() === originUpper ||
+          f.origin.code_icao?.toUpperCase() === originUpper
+      )
+      if (matchingFlight) {
+        flight = matchingFlight
+      } else {
+        console.warn(`No flight segment found from ${origin} for ${flightId}`)
+      }
+    }
+
+    const departureUTC = flight.scheduled_out || flight.scheduled_off
+    const arrivalUTC = flight.scheduled_in || flight.scheduled_on
 
     return {
       flightId,
@@ -160,8 +182,10 @@ export async function fetchFlightDetails(
         city: flight.destination.city,
         timezone: flight.destination.timezone,
       },
-      scheduledDeparture: flight.scheduled_out || flight.scheduled_off,
-      scheduledArrival: flight.scheduled_in || flight.scheduled_on,
+      scheduledDepartureUTC: departureUTC,
+      scheduledArrivalUTC: arrivalUTC,
+      scheduledDepartureLocal: formatDateTime(departureUTC, flight.origin.timezone),
+      scheduledArrivalLocal: formatDateTime(arrivalUTC, flight.destination.timezone),
       aircraftType: flight.aircraft_type,
       fetchedAt: new Date().toISOString(),
     }
@@ -174,11 +198,13 @@ export async function fetchFlightDetails(
 /**
  * Fetch current flight status from FlightAware AeroAPI
  * Only called for flights within 2 days from now
+ * @param origin - Optional origin airport code (e.g., "SFO") to filter multi-leg flights
  */
 export async function fetchFlightStatus(
   flightId: string,
   date: string,
-  apiKey: string
+  apiKey: string,
+  origin?: string
 ): Promise<FlightStatus | null> {
   try {
     const startDate = new Date(date)
@@ -205,7 +231,20 @@ export async function fetchFlightStatus(
       return null
     }
 
-    const flight = data.flights[0]
+    // Find the correct flight segment if origin is specified
+    let flight = data.flights[0]
+    if (origin) {
+      const originUpper = origin.toUpperCase()
+      const matchingFlight = data.flights.find(
+        (f) =>
+          f.origin.code_iata?.toUpperCase() === originUpper ||
+          f.origin.code?.toUpperCase() === originUpper ||
+          f.origin.code_icao?.toUpperCase() === originUpper
+      )
+      if (matchingFlight) {
+        flight = matchingFlight
+      }
+    }
 
     // Determine status
     let status: FlightStatus["status"] = "unknown"
@@ -278,6 +317,22 @@ export function formatTime(isoString: string | null, timezone?: string): string 
   if (!isoString) return "--:--"
   const date = new Date(isoString)
   return date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: timezone,
+  })
+}
+
+/**
+ * Format full date and time in a specific timezone
+ */
+export function formatDateTime(isoString: string | null, timezone?: string): string {
+  if (!isoString) return "--"
+  const date = new Date(isoString)
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
     hour: "numeric",
     minute: "2-digit",
     hour12: true,

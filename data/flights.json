@@ -2,13 +2,19 @@
   "flights": [
     {
       "id": "AI180",
-      "date": "2025-12-24"
+      "date": "2025-12-25",
+      "origin": "SFO"
+    },
+    {
+      "id": "AI180",
+      "date": "2025-12-25",
+      "origin": "VIE"
     }
   ],
   "cachedFlightDetails": {
-    "AA2553_2025-12-24": {
-      "flightId": "AA2553",
-      "date": "2025-12-24",
+    "AI180_2025-12-25_SFO": {
+      "flightId": "AI180",
+      "date": "2025-12-25",
       "origin": {
         "code": "SFO",
         "name": "San Francisco Int'l",
@@ -16,15 +22,39 @@
         "timezone": "America/Los_Angeles"
       },
       "destination": {
-        "code": "PHL",
-        "name": "Philadelphia Intl",
-        "city": "Philadelphia",
-        "timezone": "America/New_York"
+        "code": "VIE",
+        "name": "Vienna Int'l (Schwechat)",
+        "city": "Vienna",
+        "timezone": "Europe/Vienna"
       },
-      "scheduledDeparture": "2025-12-24T14:10:00Z",
-      "scheduledArrival": "2025-12-24T19:30:00Z",
-      "aircraftType": "A21N",
-      "fetchedAt": "2025-12-24T18:14:39.798Z"
+      "scheduledDepartureUTC": "2025-12-25T00:30:00Z",
+      "scheduledArrivalUTC": "2025-12-25T11:40:00Z",
+      "scheduledDepartureLocal": "Dec 24, 4:30 PM",
+      "scheduledArrivalLocal": "Dec 25, 12:40 PM",
+      "aircraftType": "B77L",
+      "fetchedAt": "2025-12-24T20:22:29.606Z"
+    },
+    "AI180_2025-12-25_VIE": {
+      "flightId": "AI180",
+      "date": "2025-12-25",
+      "origin": {
+        "code": "VIE",
+        "name": "Vienna Int'l (Schwechat)",
+        "city": "Vienna",
+        "timezone": "Europe/Vienna"
+      },
+      "destination": {
+        "code": "BOM",
+        "name": "Chatrapati Shivaji Int'l",
+        "city": "Mumbai",
+        "timezone": "Asia/Kolkata"
+      },
+      "scheduledDepartureUTC": "2025-12-25T12:55:00Z",
+      "scheduledArrivalUTC": "2025-12-25T20:20:00Z",
+      "scheduledDepartureLocal": "Dec 25, 1:55 PM",
+      "scheduledArrivalLocal": "Dec 26, 1:50 AM",
+      "aircraftType": "B77L",
+      "fetchedAt": "2025-12-24T20:22:29.956Z"
     }
   }
 }

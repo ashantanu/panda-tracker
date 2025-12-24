@@ -11,8 +11,14 @@ import {
 
 const DATA_FILE = join(process.cwd(), "data", "flights.json")
 
+interface FlightEntry {
+  id: string
+  date: string
+  origin?: string  // Optional origin airport code for multi-leg flights (e.g., "SFO")
+}
+
 interface FlightsData {
-  flights: { id: string; date: string }[]
+  flights: FlightEntry[]
   cachedFlightDetails: Record<string, CachedFlightDetails>
 }
 
@@ -51,13 +57,16 @@ export async function GET(request: NextRequest) {
     let dataUpdated = false
 
     for (const flight of flightsData.flights) {
-      const cacheKey = `${flight.id}_${flight.date}`
+      // Include origin in cache key for multi-leg flights
+      const cacheKey = flight.origin 
+        ? `${flight.id}_${flight.date}_${flight.origin}`
+        : `${flight.id}_${flight.date}`
       let details = flightsData.cachedFlightDetails[cacheKey] || null
 
       // Fetch and cache flight details if not already cached
       if (!details) {
-        console.log(`Fetching details for ${flight.id} on ${flight.date}...`)
-        details = await fetchFlightDetails(flight.id, flight.date, apiKey)
+        console.log(`Fetching details for ${flight.id} on ${flight.date}${flight.origin ? ` from ${flight.origin}` : ""}...`)
+        details = await fetchFlightDetails(flight.id, flight.date, apiKey, flight.origin)
         if (details) {
           flightsData.cachedFlightDetails[cacheKey] = details
           dataUpdated = true
@@ -68,7 +77,7 @@ export async function GET(request: NextRequest) {
       let status: FlightStatus | null = null
       if (isWithinTrackingWindow(flight.date)) {
         console.log(`Fetching status for ${flight.id} on ${flight.date}...`)
-        status = await fetchFlightStatus(flight.id, flight.date, apiKey)
+        status = await fetchFlightStatus(flight.id, flight.date, apiKey, flight.origin)
       }
 
       results.push({

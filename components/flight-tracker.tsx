@@ -9,8 +9,10 @@ interface FlightData {
   details: {
     origin: { code: string; name: string; city: string; timezone: string }
     destination: { code: string; name: string; city: string; timezone: string }
-    scheduledDeparture: string
-    scheduledArrival: string
+    scheduledDepartureUTC: string
+    scheduledArrivalUTC: string
+    scheduledDepartureLocal: string
+    scheduledArrivalLocal: string
     aircraftType: string
   } | null
   status: {
@@ -142,32 +144,50 @@ export function FlightTracker() {
 
   const getDepartureTime = (flight: FlightData): string => {
     const tz = flight.details?.origin.timezone
+    // For actual departure (real-time), format it
     if (flight.status?.actualDeparture) {
       return formatTime(flight.status.actualDeparture, tz)
     }
-    if (flight.details?.scheduledDeparture) {
-      return formatTime(flight.details.scheduledDeparture, tz)
+    // Use pre-formatted local time if available
+    if (flight.details?.scheduledDepartureLocal) {
+      return flight.details.scheduledDepartureLocal
+    }
+    if (flight.details?.scheduledDepartureUTC) {
+      return formatTime(flight.details.scheduledDepartureUTC, tz)
     }
     return "--:--"
   }
 
   const getArrivalTime = (flight: FlightData): string => {
     const tz = flight.details?.destination.timezone
+    // For estimated arrival (real-time), format it
     if (flight.status?.estimatedArrival) {
       return formatTime(flight.status.estimatedArrival, tz)
     }
-    if (flight.details?.scheduledArrival) {
-      return formatTime(flight.details.scheduledArrival, tz)
+    // Use pre-formatted local time if available
+    if (flight.details?.scheduledArrivalLocal) {
+      return flight.details.scheduledArrivalLocal
+    }
+    if (flight.details?.scheduledArrivalUTC) {
+      return formatTime(flight.details.scheduledArrivalUTC, tz)
     }
     return "--:--"
   }
 
   const getDepartureTimezone = (flight: FlightData): string => {
+    // Only show timezone if we're not using the pre-formatted local time
+    if (flight.details?.scheduledDepartureLocal && !flight.status?.actualDeparture) {
+      return "" // Local time already has date context
+    }
     if (!flight.details?.origin.timezone) return ""
     return getTimezoneAbbr(flight.details.origin.timezone)
   }
 
   const getArrivalTimezone = (flight: FlightData): string => {
+    // Only show timezone if we're not using the pre-formatted local time
+    if (flight.details?.scheduledArrivalLocal && !flight.status?.estimatedArrival) {
+      return ""
+    }
     if (!flight.details?.destination.timezone) return ""
     return getTimezoneAbbr(flight.details.destination.timezone)
   }
