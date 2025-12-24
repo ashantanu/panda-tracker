@@ -306,25 +306,6 @@ export function FlightTracker() {
         </div>
       )}
 
-      <div className="bg-black border-2 border-cyan-400 rounded p-4 mt-6 shadow-[0_0_15px_rgba(34,211,238,0.3)]">
-        <p className="text-sm text-cyan-400 mb-2 font-bold font-mono tracking-wider">
-          ⚙ FLIGHTAWARE API STATUS:
-        </p>
-        <ul className="text-xs text-gray-300 font-mono space-y-1 leading-relaxed">
-          <li className="flex items-start gap-2">
-            <span className="text-cyan-400">▸</span>
-            <span>Flight details are cached in data/flights.json</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-yellow-400">▸</span>
-            <span>Status updates only for flights within 2 days</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-pink-500">▸</span>
-            <span>Set FLIGHTAWARE_API_KEY in .env.local</span>
-          </li>
-        </ul>
-      </div>
     </div>
   )
 }
