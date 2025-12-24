@@ -88,10 +88,8 @@ export interface CachedFlightDetails {
     city: string
     timezone: string
   }
-  scheduledDepartureUTC: string
-  scheduledArrivalUTC: string
-  scheduledDepartureLocal: string  // Formatted in origin timezone
-  scheduledArrivalLocal: string    // Formatted in destination timezone
+  scheduledDeparture: string
+  scheduledArrival: string
   aircraftType: string
   fetchedAt: string
 }
@@ -164,9 +162,6 @@ export async function fetchFlightDetails(
       }
     }
 
-    const departureUTC = flight.scheduled_out || flight.scheduled_off
-    const arrivalUTC = flight.scheduled_in || flight.scheduled_on
-
     return {
       flightId,
       date,
@@ -182,10 +177,8 @@ export async function fetchFlightDetails(
         city: flight.destination.city,
         timezone: flight.destination.timezone,
       },
-      scheduledDepartureUTC: departureUTC,
-      scheduledArrivalUTC: arrivalUTC,
-      scheduledDepartureLocal: formatDateTime(departureUTC, flight.origin.timezone),
-      scheduledArrivalLocal: formatDateTime(arrivalUTC, flight.destination.timezone),
+      scheduledDeparture: flight.scheduled_out || flight.scheduled_off,
+      scheduledArrival: flight.scheduled_in || flight.scheduled_on,
       aircraftType: flight.aircraft_type,
       fetchedAt: new Date().toISOString(),
     }
@@ -317,22 +310,6 @@ export function formatTime(isoString: string | null, timezone?: string): string 
   if (!isoString) return "--:--"
   const date = new Date(isoString)
   return date.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    timeZone: timezone,
-  })
-}
-
-/**
- * Format full date and time in a specific timezone
- */
-export function formatDateTime(isoString: string | null, timezone?: string): string {
-  if (!isoString) return "--"
-  const date = new Date(isoString)
-  return date.toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
     hour: "numeric",
     minute: "2-digit",
     hour12: true,

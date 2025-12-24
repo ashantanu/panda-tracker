@@ -27,12 +27,10 @@
         "city": "Vienna",
         "timezone": "Europe/Vienna"
       },
-      "scheduledDepartureUTC": "2025-12-25T00:30:00Z",
-      "scheduledArrivalUTC": "2025-12-25T11:40:00Z",
-      "scheduledDepartureLocal": "Dec 24, 4:30 PM",
-      "scheduledArrivalLocal": "Dec 25, 12:40 PM",
+      "scheduledDeparture": "2025-12-25T00:30:00Z",
+      "scheduledArrival": "2025-12-25T11:40:00Z",
       "aircraftType": "B77L",
-      "fetchedAt": "2025-12-24T20:22:29.606Z"
+      "fetchedAt": "2025-12-24T20:20:18.798Z"
     },
     "AI180_2025-12-25_VIE": {
       "flightId": "AI180",
@@ -49,12 +47,10 @@
         "city": "Mumbai",
         "timezone": "Asia/Kolkata"
       },
-      "scheduledDepartureUTC": "2025-12-25T12:55:00Z",
-      "scheduledArrivalUTC": "2025-12-25T20:20:00Z",
-      "scheduledDepartureLocal": "Dec 25, 1:55 PM",
-      "scheduledArrivalLocal": "Dec 26, 1:50 AM",
+      "scheduledDeparture": "2025-12-25T12:55:00Z",
+      "scheduledArrival": "2025-12-25T20:20:00Z",
       "aircraftType": "B77L",
-      "fetchedAt": "2025-12-24T20:22:29.956Z"
+      "fetchedAt": "2025-12-24T20:20:19.211Z"
     }
   }
 }
