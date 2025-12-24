@@ -3,9 +3,19 @@
 import { DinoGame } from "@/components/dino-game"
 import { FlightTracker } from "@/components/flight-tracker"
 
+// Snowflakes for the Christmas effect
+const Snowfall = () => (
+  <div className="fixed inset-0 pointer-events-none overflow-hidden z-50" aria-hidden="true">
+    {Array.from({ length: 15 }).map((_, i) => (
+      <span key={i} className="snowflake">❄</span>
+    ))}
+  </div>
+)
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#0f0f1e] via-[#1a1a2e] to-[#0f0f1e]">
+      <Snowfall />
       <div className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="mb-8 relative">
           <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 rounded-lg blur-xl opacity-30 animate-pulse"></div>

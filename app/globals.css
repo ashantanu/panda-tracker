@@ -140,3 +140,64 @@
     }
   }
 }
+
+/* ❄️ Christmas Snow Effect */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-10vh) translateX(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) translateX(20px);
+    opacity: 0.3;
+  }
+}
+
+@keyframes snowfall-drift {
+  0% {
+    transform: translateY(-10vh) translateX(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) translateX(-20px);
+    opacity: 0.3;
+  }
+}
+
+.snowflake {
+  position: fixed;
+  top: -10px;
+  color: white;
+  font-size: 1rem;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.8;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  animation: snowfall linear infinite;
+}
+
+.snowflake:nth-child(odd) {
+  animation-name: snowfall-drift;
+}
+
+.snowflake:nth-child(1) { left: 5%; animation-duration: 8s; animation-delay: 0s; font-size: 0.8rem; }
+.snowflake:nth-child(2) { left: 15%; animation-duration: 12s; animation-delay: 1s; font-size: 1.2rem; }
+.snowflake:nth-child(3) { left: 25%; animation-duration: 10s; animation-delay: 2s; font-size: 0.6rem; }
+.snowflake:nth-child(4) { left: 35%; animation-duration: 14s; animation-delay: 0.5s; font-size: 1rem; }
+.snowflake:nth-child(5) { left: 45%; animation-duration: 9s; animation-delay: 3s; font-size: 0.9rem; }
+.snowflake:nth-child(6) { left: 55%; animation-duration: 11s; animation-delay: 1.5s; font-size: 1.1rem; }
+.snowflake:nth-child(7) { left: 65%; animation-duration: 13s; animation-delay: 2.5s; font-size: 0.7rem; }
+.snowflake:nth-child(8) { left: 75%; animation-duration: 8s; animation-delay: 4s; font-size: 1.3rem; }
+.snowflake:nth-child(9) { left: 85%; animation-duration: 10s; animation-delay: 0.8s; font-size: 0.8rem; }
+.snowflake:nth-child(10) { left: 95%; animation-duration: 12s; animation-delay: 2s; font-size: 1rem; }
+.snowflake:nth-child(11) { left: 10%; animation-duration: 15s; animation-delay: 3.5s; font-size: 0.5rem; }
+.snowflake:nth-child(12) { left: 30%; animation-duration: 7s; animation-delay: 1.2s; font-size: 1.4rem; }
+.snowflake:nth-child(13) { left: 50%; animation-duration: 11s; animation-delay: 4.5s; font-size: 0.6rem; }
+.snowflake:nth-child(14) { left: 70%; animation-duration: 9s; animation-delay: 0.3s; font-size: 1.1rem; }
+.snowflake:nth-child(15) { left: 90%; animation-duration: 13s; animation-delay: 2.8s; font-size: 0.9rem; }
