@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       const cacheKey = flight.origin 
         ? `${flight.id}_${flight.date}_${flight.origin}`
         : `${flight.id}_${flight.date}`
-      let details = flightsData.cachedFlightDetails[cacheKey] || null
+      let details: CachedFlightDetails | null = flightsData.cachedFlightDetails[cacheKey] || null
 
       // Fetch and cache flight details if not already cached
       if (!details) {
