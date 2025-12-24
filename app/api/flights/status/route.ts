@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
-import { readFile } from "fs/promises"
+import { readFile, writeFile } from "fs/promises"
 import { join } from "path"
 import {
   fetchFlightStatus,
   isWithinTrackingWindow,
+  isFlightCompleted,
   type FlightStatus,
+  type CachedFlightDetails,
 } from "@/lib/flightaware"
 
 const DATA_FILE = join(process.cwd(), "data", "flights.json")
+const API_CALL_DELAY = 200
 
 interface FlightEntry {
   id: string
@@ -17,7 +20,8 @@ interface FlightEntry {
 
 interface FlightsData {
   flights: FlightEntry[]
-  cachedFlightDetails: Record<string, unknown>
+  cachedFlightDetails: Record<string, CachedFlightDetails>
+  cachedFlightStatus?: Record<string, FlightStatus & { cachedAt: string }>
 }
 
 async function readFlightsData(): Promise<FlightsData> {
@@ -25,14 +29,22 @@ async function readFlightsData(): Promise<FlightsData> {
     const data = await readFile(DATA_FILE, "utf-8")
     return JSON.parse(data)
   } catch {
-    return { flights: [], cachedFlightDetails: {} }
+    return { flights: [], cachedFlightDetails: {}, cachedFlightStatus: {} }
   }
+}
+
+async function writeFlightsData(data: FlightsData): Promise<void> {
+  await writeFile(DATA_FILE, JSON.stringify(data, null, 2))
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 /**
  * GET /api/flights/status
- * Fetches current status for all flights within the tracking window (2 days)
- * This is the endpoint to call for real-time status updates
+ * Fetches current status for flights within the tracking window (2 days)
+ * that haven't completed yet. Uses caching to minimize API calls.
  */
 export async function GET(request: NextRequest) {
   const apiKey = process.env.FLIGHTAWARE_API_KEY
@@ -46,22 +58,82 @@ export async function GET(request: NextRequest) {
 
   try {
     const flightsData = await readFlightsData()
+    if (!flightsData.cachedFlightStatus) {
+      flightsData.cachedFlightStatus = {}
+    }
+    
     const statuses: FlightStatus[] = []
+    let dataUpdated = false
+    let apiCallCount = 0
 
-    // Only fetch status for flights within the tracking window
+    const STATUS_CACHE_TTL = 2 * 60 * 1000 // 2 minutes
+
     for (const flight of flightsData.flights) {
-      if (isWithinTrackingWindow(flight.date)) {
-        console.log(`Fetching status for ${flight.id} on ${flight.date}${flight.origin ? ` from ${flight.origin}` : ""}...`)
-        const status = await fetchFlightStatus(flight.id, flight.date, apiKey, flight.origin)
-        if (status) {
+      const cacheKey = flight.origin 
+        ? `${flight.id}_${flight.date}_${flight.origin}`
+        : `${flight.id}_${flight.date}`
+
+      const cachedStatus = flightsData.cachedFlightStatus[cacheKey]
+      const statusCacheAge = cachedStatus 
+        ? Date.now() - new Date(cachedStatus.cachedAt).getTime() 
+        : Infinity
+
+      // Skip flights that are completed or outside tracking window
+      const flightIsCompleted = cachedStatus && isFlightCompleted(cachedStatus)
+      
+      if (!isWithinTrackingWindow(flight.date)) {
+        // Use cached status if available
+        if (cachedStatus) {
+          const status = { ...cachedStatus }
+          delete (status as FlightStatus & { cachedAt?: string }).cachedAt
           statuses.push(status)
         }
+        continue
+      }
+
+      if (flightIsCompleted) {
+        // Use cached status for completed flights
+        const status = { ...cachedStatus }
+        delete (status as FlightStatus & { cachedAt?: string }).cachedAt
+        statuses.push(status)
+        continue
+      }
+
+      // Only refetch if cache is stale
+      if (statusCacheAge > STATUS_CACHE_TTL) {
+        console.log(`[API] Fetching status for ${flight.id} on ${flight.date}`)
+        
+        if (apiCallCount > 0) await sleep(API_CALL_DELAY)
+        
+        const freshStatus = await fetchFlightStatus(flight.id, flight.date, apiKey, flight.origin)
+        apiCallCount++
+
+        if (freshStatus) {
+          flightsData.cachedFlightStatus[cacheKey] = {
+            ...freshStatus,
+            cachedAt: new Date().toISOString()
+          }
+          statuses.push(freshStatus)
+          dataUpdated = true
+        }
+      } else if (cachedStatus) {
+        // Use cached status
+        const status = { ...cachedStatus }
+        delete (status as FlightStatus & { cachedAt?: string }).cachedAt
+        statuses.push(status)
       }
     }
+
+    if (dataUpdated) {
+      await writeFlightsData(flightsData)
+    }
+
+    console.log(`[API Status] Made ${apiCallCount} API calls`)
 
     return NextResponse.json({
       statuses,
       updatedAt: new Date().toISOString(),
+      apiCallsMade: apiCallCount,
     })
   } catch (error) {
     console.error("Error fetching flight statuses:", error)
@@ -71,4 +143,3 @@ export async function GET(request: NextRequest) {
     )
   }
 }
-

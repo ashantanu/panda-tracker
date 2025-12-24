@@ -5,6 +5,35 @@
 
 const AEROAPI_BASE_URL = "https://aeroapi.flightaware.com/aeroapi"
 
+// Rate limiting configuration
+const MAX_RETRIES = 3
+const INITIAL_RETRY_DELAY = 1000 // 1 second
+
+/**
+ * Fetch with retry logic for rate limiting
+ */
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  retries = MAX_RETRIES
+): Promise<Response> {
+  const response = await fetch(url, options)
+  
+  // Handle rate limiting (429) with exponential backoff
+  if (response.status === 429 && retries > 0) {
+    const retryAfter = response.headers.get("Retry-After")
+    const delay = retryAfter 
+      ? parseInt(retryAfter) * 1000 
+      : INITIAL_RETRY_DELAY * (MAX_RETRIES - retries + 1)
+    
+    console.warn(`Rate limited. Retrying in ${delay}ms... (${retries} retries left)`)
+    await new Promise(resolve => setTimeout(resolve, delay))
+    return fetchWithRetry(url, options, retries - 1)
+  }
+  
+  return response
+}
+
 export interface FlightAwareResponse {
   flights: AeroAPIFlight[]
 }
@@ -108,6 +137,30 @@ export interface FlightStatus {
 }
 
 /**
+ * Check if a flight has completed (arrived or cancelled)
+ */
+export function isFlightCompleted(status: FlightStatus): boolean {
+  return status.status === "arrived" || status.status === "cancelled" || status.progress >= 100
+}
+
+/**
+ * Check if a flight's scheduled departure matches the target date (in the origin's local timezone)
+ */
+function flightMatchesDate(flight: AeroAPIFlight, targetDate: string): boolean {
+  const scheduled = flight.scheduled_out || flight.scheduled_off
+  if (!scheduled) return false
+  
+  // Get the flight's departure date in the origin timezone
+  const flightDate = new Date(scheduled)
+  const originTz = flight.origin.timezone || "UTC"
+  
+  // Format the flight date in the origin's timezone
+  const flightLocalDate = flightDate.toLocaleDateString("en-CA", { timeZone: originTz }) // YYYY-MM-DD format
+  
+  return flightLocalDate === targetDate
+}
+
+/**
  * Fetch flight details from FlightAware AeroAPI
  * @param origin - Optional origin airport code (e.g., "SFO") to filter multi-leg flights
  */
@@ -118,15 +171,11 @@ export async function fetchFlightDetails(
   origin?: string
 ): Promise<CachedFlightDetails | null> {
   try {
-    // Format: AA1234 -> AA1234, date: 2025-12-25
-    // AeroAPI expects dates in ISO format
-    const startDate = new Date(date)
-    const endDate = new Date(date)
-    endDate.setDate(endDate.getDate() + 1)
-
-    const url = `${AEROAPI_BASE_URL}/flights/${flightId}?start=${startDate.toISOString()}&end=${endDate.toISOString()}`
-
-    const response = await fetch(url, {
+    // First, try fetching without date filter to get scheduled/future flights
+    // FlightAware's date filter only works for historical flights
+    let url = `${AEROAPI_BASE_URL}/flights/${flightId}`
+    
+    const response = await fetchWithRetry(url, {
       headers: {
         "x-apikey": apiKey,
         Accept: "application/json; charset=UTF-8",
@@ -134,33 +183,48 @@ export async function fetchFlightDetails(
     })
 
     if (!response.ok) {
-      console.error(`FlightAware API error: ${response.status} ${response.statusText}`)
+      if (response.status === 429) {
+        console.error(`FlightAware API rate limited after retries`)
+      } else {
+        console.error(`FlightAware API error: ${response.status} ${response.statusText}`)
+      }
       return null
     }
 
     const data: FlightAwareResponse = await response.json()
 
     if (!data.flights || data.flights.length === 0) {
-      console.warn(`No flight data found for ${flightId} on ${date}`)
+      console.warn(`No flight data found for ${flightId}`)
       return null
     }
 
-    // Find the correct flight segment if origin is specified
-    let flight = data.flights[0]
+    // Filter flights by date (in local timezone) and origin
+    let matchingFlights = data.flights.filter((f) => flightMatchesDate(f, date))
+    
+    // If origin is specified, filter by origin airport
     if (origin) {
       const originUpper = origin.toUpperCase()
-      const matchingFlight = data.flights.find(
+      matchingFlights = matchingFlights.filter(
         (f) =>
           f.origin.code_iata?.toUpperCase() === originUpper ||
           f.origin.code?.toUpperCase() === originUpper ||
           f.origin.code_icao?.toUpperCase() === originUpper
       )
-      if (matchingFlight) {
-        flight = matchingFlight
-      } else {
-        console.warn(`No flight segment found from ${origin} for ${flightId}`)
-      }
     }
+
+    if (matchingFlights.length === 0) {
+      // Log available flights for debugging
+      console.warn(`No flight found for ${flightId} on ${date}${origin ? ` from ${origin}` : ""}`)
+      console.log(`Available flights:`, data.flights.slice(0, 3).map(f => ({
+        origin: f.origin.code_iata,
+        dest: f.destination.code_iata,
+        scheduled: f.scheduled_out,
+        localDate: f.scheduled_out ? new Date(f.scheduled_out).toLocaleDateString("en-CA", { timeZone: f.origin.timezone || "UTC" }) : null
+      })))
+      return null
+    }
+
+    const flight = matchingFlights[0]
 
     return {
       flightId,
@@ -200,13 +264,10 @@ export async function fetchFlightStatus(
   origin?: string
 ): Promise<FlightStatus | null> {
   try {
-    const startDate = new Date(date)
-    const endDate = new Date(date)
-    endDate.setDate(endDate.getDate() + 1)
+    // Fetch without date filter to get both scheduled and in-progress flights
+    const url = `${AEROAPI_BASE_URL}/flights/${flightId}`
 
-    const url = `${AEROAPI_BASE_URL}/flights/${flightId}?start=${startDate.toISOString()}&end=${endDate.toISOString()}`
-
-    const response = await fetch(url, {
+    const response = await fetchWithRetry(url, {
       headers: {
         "x-apikey": apiKey,
         Accept: "application/json; charset=UTF-8",
@@ -214,7 +275,11 @@ export async function fetchFlightStatus(
     })
 
     if (!response.ok) {
-      console.error(`FlightAware API error: ${response.status} ${response.statusText}`)
+      if (response.status === 429) {
+        console.error(`FlightAware API rate limited after retries`)
+      } else {
+        console.error(`FlightAware API error: ${response.status} ${response.statusText}`)
+      }
       return null
     }
 
@@ -224,24 +289,43 @@ export async function fetchFlightStatus(
       return null
     }
 
-    // Find the correct flight segment if origin is specified
-    let flight = data.flights[0]
+    // Filter by date and origin
+    let matchingFlights = data.flights.filter((f) => flightMatchesDate(f, date))
+    
     if (origin) {
       const originUpper = origin.toUpperCase()
-      const matchingFlight = data.flights.find(
+      matchingFlights = matchingFlights.filter(
         (f) =>
           f.origin.code_iata?.toUpperCase() === originUpper ||
           f.origin.code?.toUpperCase() === originUpper ||
           f.origin.code_icao?.toUpperCase() === originUpper
       )
-      if (matchingFlight) {
-        flight = matchingFlight
-      }
     }
+
+    if (matchingFlights.length === 0) {
+      return null
+    }
+
+    const flight = matchingFlights[0]
+
+    // Calculate delay from estimated vs scheduled times (more reliable than departure_delay field)
+    let calculatedDelay = 0
+    if (flight.estimated_out && flight.scheduled_out) {
+      const estimated = new Date(flight.estimated_out).getTime()
+      const scheduled = new Date(flight.scheduled_out).getTime()
+      calculatedDelay = Math.max(0, (estimated - scheduled) / 1000) // in seconds
+    }
+    
+    // Use the larger of reported delay or calculated delay
+    const effectiveDelay = Math.max(flight.departure_delay || 0, calculatedDelay)
+    
+    // Check if API status text indicates delay
+    const apiStatusText = flight.status || ""
+    const apiIndicatesDelay = apiStatusText.toLowerCase().includes("delay")
 
     // Determine status
     let status: FlightStatus["status"] = "unknown"
-    let statusText = flight.status || "Unknown"
+    let statusText = apiStatusText || "Unknown"
 
     if (flight.cancelled) {
       status = "cancelled"
@@ -255,17 +339,17 @@ export async function fetchFlightStatus(
     } else if (flight.actual_off || flight.actual_out) {
       status = flight.progress_percent > 0 ? "en_route" : "departed"
       statusText = flight.progress_percent > 0 ? "En Route" : "Departed"
-    } else if (flight.departure_delay > 0 || flight.arrival_delay > 0) {
+    } else if (effectiveDelay > 0 || apiIndicatesDelay) {
       status = "delayed"
-      statusText = `Delayed ${Math.round(flight.departure_delay / 60)} min`
+      const delayMins = Math.round(effectiveDelay / 60)
+      statusText = delayMins > 0 ? `Delayed ${delayMins} min` : "Delayed"
+      // Keep API status text if it's more informative
+      if (apiStatusText && apiStatusText !== "Scheduled") {
+        statusText = apiStatusText
+      }
     } else {
       status = "scheduled"
-      statusText = "Scheduled"
-    }
-
-    // Override with API status if available
-    if (flight.status) {
-      statusText = flight.status
+      statusText = apiStatusText || "Scheduled"
     }
 
     return {
@@ -276,7 +360,7 @@ export async function fetchFlightStatus(
       progress: flight.progress_percent || 0,
       actualDeparture: flight.actual_out || flight.actual_off || null,
       estimatedArrival: flight.estimated_in || flight.estimated_on || null,
-      departureDelay: flight.departure_delay || 0,
+      departureDelay: effectiveDelay,
       arrivalDelay: flight.arrival_delay || 0,
       lastUpdated: new Date().toISOString(),
     }

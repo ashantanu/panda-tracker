@@ -9,6 +9,46 @@
       "id": "AI180",
       "date": "2025-12-25",
       "origin": "VIE"
+    },
+    {
+      "id": "AI2424",
+      "date": "2025-12-25",
+      "origin": "BOM"
+    },
+    {
+      "id": "AI217",
+      "date": "2025-12-25",
+      "origin": "DEL"
+    },
+    {
+      "id": "BHA559",
+      "date": "2025-12-26",
+      "origin": "KTM"
+    },
+    {
+      "id": "BHA552",
+      "date": "2025-12-30",
+      "origin": "SIF"
+    },
+    {
+      "id": "AI218",
+      "date": "2025-12-30",
+      "origin": "KTM"
+    },
+    {
+      "id": "AI2881",
+      "date": "2025-12-30",
+      "origin": "DEL"
+    },
+    {
+      "id": "6E6087",
+      "date": "2026-01-02",
+      "origin": "BDQ"
+    },
+    {
+      "id": "AI179",
+      "date": "2026-01-03",
+      "origin": "BOM"
     }
   ],
   "cachedFlightDetails": {
@@ -30,7 +70,7 @@
       "scheduledDeparture": "2025-12-25T00:30:00Z",
       "scheduledArrival": "2025-12-25T11:40:00Z",
       "aircraftType": "B77L",
-      "fetchedAt": "2025-12-24T20:20:18.798Z"
+      "fetchedAt": "2025-12-24T21:31:12.434Z"
     },
     "AI180_2025-12-25_VIE": {
       "flightId": "AI180",
@@ -50,7 +90,101 @@
       "scheduledDeparture": "2025-12-25T12:55:00Z",
       "scheduledArrival": "2025-12-25T20:20:00Z",
       "aircraftType": "B77L",
-      "fetchedAt": "2025-12-24T20:20:19.211Z"
+      "fetchedAt": "2025-12-24T21:31:13.057Z"
+    },
+    "AI2424_2025-12-25_BOM": {
+      "flightId": "AI2424",
+      "date": "2025-12-25",
+      "origin": {
+        "code": "BOM",
+        "name": "Chatrapati Shivaji Int'l",
+        "city": "Mumbai",
+        "timezone": "Asia/Kolkata"
+      },
+      "destination": {
+        "code": "DEL",
+        "name": "Indira Gandhi Int'l",
+        "city": "New Delhi",
+        "timezone": "Asia/Kolkata"
+      },
+      "scheduledDeparture": "2025-12-25T01:30:00Z",
+      "scheduledArrival": "2025-12-25T03:40:00Z",
+      "aircraftType": "A20N",
+      "fetchedAt": "2025-12-24T21:36:22.102Z"
+    },
+    "AI217_2025-12-25_DEL": {
+      "flightId": "AI217",
+      "date": "2025-12-25",
+      "origin": {
+        "code": "DEL",
+        "name": "Indira Gandhi Int'l",
+        "city": "New Delhi",
+        "timezone": "Asia/Kolkata"
+      },
+      "destination": {
+        "code": "KTM",
+        "name": "Tribhuvan Int'l",
+        "city": "Kathmandu",
+        "timezone": "Asia/Kathmandu"
+      },
+      "scheduledDeparture": "2025-12-25T06:15:00Z",
+      "scheduledArrival": "2025-12-25T08:10:00Z",
+      "aircraftType": "A320",
+      "fetchedAt": "2025-12-24T21:36:23.133Z"
+    }
+  },
+  "cachedFlightStatus": {
+    "AI180_2025-12-25_SFO": {
+      "flightId": "AI180",
+      "date": "2025-12-25",
+      "status": "scheduled",
+      "statusText": "Scheduled",
+      "progress": 0,
+      "actualDeparture": null,
+      "estimatedArrival": "2025-12-26T11:40:00Z",
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "lastUpdated": "2025-12-24T21:41:22.099Z",
+      "cachedAt": "2025-12-24T21:41:22.099Z"
+    },
+    "AI180_2025-12-25_VIE": {
+      "flightId": "AI180",
+      "date": "2025-12-25",
+      "status": "delayed",
+      "statusText": "Scheduled / Delayed",
+      "progress": 0,
+      "actualDeparture": null,
+      "estimatedArrival": "2025-12-25T21:00:00Z",
+      "departureDelay": 2400,
+      "arrivalDelay": 2400,
+      "lastUpdated": "2025-12-24T21:41:22.694Z",
+      "cachedAt": "2025-12-24T21:41:22.694Z"
+    },
+    "AI2424_2025-12-25_BOM": {
+      "flightId": "AI2424",
+      "date": "2025-12-25",
+      "status": "delayed",
+      "statusText": "Delayed 5 min",
+      "progress": 0,
+      "actualDeparture": null,
+      "estimatedArrival": "2025-12-25T03:40:00Z",
+      "departureDelay": 300,
+      "arrivalDelay": 0,
+      "lastUpdated": "2025-12-24T21:41:23.500Z",
+      "cachedAt": "2025-12-24T21:41:23.500Z"
+    },
+    "AI217_2025-12-25_DEL": {
+      "flightId": "AI217",
+      "date": "2025-12-25",
+      "status": "scheduled",
+      "statusText": "Scheduled",
+      "progress": 0,
+      "actualDeparture": null,
+      "estimatedArrival": "2025-12-25T08:10:00Z",
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "lastUpdated": "2025-12-24T21:41:24.296Z",
+      "cachedAt": "2025-12-24T21:41:24.296Z"
     }
   }
 }

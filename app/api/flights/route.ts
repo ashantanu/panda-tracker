@@ -5,11 +5,15 @@ import {
   fetchFlightDetails,
   fetchFlightStatus,
   isWithinTrackingWindow,
+  isFlightCompleted,
   type CachedFlightDetails,
   type FlightStatus,
 } from "@/lib/flightaware"
 
 const DATA_FILE = join(process.cwd(), "data", "flights.json")
+
+// Rate limiting: minimum delay between API calls (ms)
+const API_CALL_DELAY = 200
 
 interface FlightEntry {
   id: string
@@ -20,6 +24,7 @@ interface FlightEntry {
 interface FlightsData {
   flights: FlightEntry[]
   cachedFlightDetails: Record<string, CachedFlightDetails>
+  cachedFlightStatus?: Record<string, FlightStatus & { cachedAt: string }>
 }
 
 async function readFlightsData(): Promise<FlightsData> {
@@ -27,12 +32,16 @@ async function readFlightsData(): Promise<FlightsData> {
     const data = await readFile(DATA_FILE, "utf-8")
     return JSON.parse(data)
   } catch {
-    return { flights: [], cachedFlightDetails: {} }
+    return { flights: [], cachedFlightDetails: {}, cachedFlightStatus: {} }
   }
 }
 
 async function writeFlightsData(data: FlightsData): Promise<void> {
   await writeFile(DATA_FILE, JSON.stringify(data, null, 2))
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
 export async function GET(request: NextRequest) {
@@ -47,6 +56,10 @@ export async function GET(request: NextRequest) {
 
   try {
     const flightsData = await readFlightsData()
+    if (!flightsData.cachedFlightStatus) {
+      flightsData.cachedFlightStatus = {}
+    }
+    
     const results: {
       flightId: string
       date: string
@@ -55,29 +68,80 @@ export async function GET(request: NextRequest) {
     }[] = []
 
     let dataUpdated = false
+    let apiCallCount = 0
 
     for (const flight of flightsData.flights) {
-      // Include origin in cache key for multi-leg flights
+      // Build cache key
       const cacheKey = flight.origin 
         ? `${flight.id}_${flight.date}_${flight.origin}`
         : `${flight.id}_${flight.date}`
+      
       let details: CachedFlightDetails | null = flightsData.cachedFlightDetails[cacheKey] || null
+      let status: FlightStatus | null = null
 
-      // Fetch and cache flight details if not already cached
-      if (!details) {
-        console.log(`Fetching details for ${flight.id} on ${flight.date}${flight.origin ? ` from ${flight.origin}` : ""}...`)
+      // === FLIGHT DETAILS ===
+      // Only fetch if not already cached (details don't change)
+      if (!details && isWithinTrackingWindow(flight.date)) {
+        console.log(`[API] Fetching details for ${flight.id} on ${flight.date}${flight.origin ? ` from ${flight.origin}` : ""}`)
+        
+        // Add delay to avoid rate limiting
+        if (apiCallCount > 0) await sleep(API_CALL_DELAY)
+        
         details = await fetchFlightDetails(flight.id, flight.date, apiKey, flight.origin)
+        apiCallCount++
+        
         if (details) {
           flightsData.cachedFlightDetails[cacheKey] = details
           dataUpdated = true
         }
       }
 
-      // Only fetch status for flights within tracking window
-      let status: FlightStatus | null = null
-      if (isWithinTrackingWindow(flight.date)) {
-        console.log(`Fetching status for ${flight.id} on ${flight.date}...`)
-        status = await fetchFlightStatus(flight.id, flight.date, apiKey, flight.origin)
+      // === FLIGHT STATUS ===
+      // Only fetch status for:
+      // 1. Flights within tracking window (2 days)
+      // 2. Flights that haven't completed yet
+      const cachedStatus = flightsData.cachedFlightStatus[cacheKey]
+      const statusCacheAge = cachedStatus 
+        ? Date.now() - new Date(cachedStatus.cachedAt).getTime() 
+        : Infinity
+      
+      // Check if flight is completed (use cached status to determine)
+      const flightIsCompleted = cachedStatus && isFlightCompleted(cachedStatus)
+      
+      if (isWithinTrackingWindow(flight.date) && !flightIsCompleted) {
+        // Only refetch status if cache is older than 2 minutes
+        const STATUS_CACHE_TTL = 2 * 60 * 1000 // 2 minutes
+        
+        if (statusCacheAge > STATUS_CACHE_TTL) {
+          console.log(`[API] Fetching status for ${flight.id} on ${flight.date}`)
+          
+          // Add delay to avoid rate limiting
+          if (apiCallCount > 0) await sleep(API_CALL_DELAY)
+          
+          const freshStatus = await fetchFlightStatus(flight.id, flight.date, apiKey, flight.origin)
+          apiCallCount++
+          
+          if (freshStatus) {
+            flightsData.cachedFlightStatus[cacheKey] = {
+              ...freshStatus,
+              cachedAt: new Date().toISOString()
+            }
+            status = freshStatus
+            dataUpdated = true
+          }
+        } else {
+          // Use cached status
+          status = cachedStatus ? { ...cachedStatus } : null
+          if (status && 'cachedAt' in status) {
+            delete (status as FlightStatus & { cachedAt?: string }).cachedAt
+          }
+        }
+      } else if (cachedStatus) {
+        // Use cached status for completed or far-future flights
+        status = { ...cachedStatus }
+        if ('cachedAt' in status) {
+          delete (status as FlightStatus & { cachedAt?: string }).cachedAt
+        }
       }
 
       results.push({
@@ -93,9 +157,12 @@ export async function GET(request: NextRequest) {
       await writeFlightsData(flightsData)
     }
 
+    console.log(`[API] Made ${apiCallCount} API calls for ${flightsData.flights.length} flights`)
+
     return NextResponse.json({
       flights: results,
       updatedAt: new Date().toISOString(),
+      apiCallsMade: apiCallCount,
     })
   } catch (error) {
     console.error("Error fetching flights:", error)
@@ -110,7 +177,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { id, date } = body
+    const { id, date, origin } = body
 
     if (!id || !date) {
       return NextResponse.json(
@@ -123,15 +190,15 @@ export async function POST(request: NextRequest) {
 
     // Check if flight already exists
     const exists = flightsData.flights.some(
-      (f) => f.id === id && f.date === date
+      (f) => f.id === id && f.date === date && f.origin === origin
     )
 
     if (!exists) {
-      flightsData.flights.push({ id, date })
+      flightsData.flights.push({ id, date, origin })
       await writeFlightsData(flightsData)
     }
 
-    return NextResponse.json({ success: true, flight: { id, date } })
+    return NextResponse.json({ success: true, flight: { id, date, origin } })
   } catch (error) {
     console.error("Error adding flight:", error)
     return NextResponse.json(
@@ -147,6 +214,7 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get("id")
     const date = searchParams.get("date")
+    const origin = searchParams.get("origin")
 
     if (!id || !date) {
       return NextResponse.json(
@@ -158,12 +226,15 @@ export async function DELETE(request: NextRequest) {
     const flightsData = await readFlightsData()
 
     flightsData.flights = flightsData.flights.filter(
-      (f) => !(f.id === id && f.date === date)
+      (f) => !(f.id === id && f.date === date && f.origin === origin)
     )
 
-    // Also remove cached details
-    const cacheKey = `${id}_${date}`
+    // Also remove cached details and status
+    const cacheKey = origin ? `${id}_${date}_${origin}` : `${id}_${date}`
     delete flightsData.cachedFlightDetails[cacheKey]
+    if (flightsData.cachedFlightStatus) {
+      delete flightsData.cachedFlightStatus[cacheKey]
+    }
 
     await writeFlightsData(flightsData)
 
@@ -176,4 +247,3 @@ export async function DELETE(request: NextRequest) {
     )
   }
 }
-
