@@ -131,6 +131,26 @@
       "scheduledArrival": "2025-12-25T08:10:00Z",
       "aircraftType": "A320",
       "fetchedAt": "2025-12-24T21:36:23.133Z"
+    },
+    "BHA559_2025-12-26_KTM": {
+      "flightId": "BHA559",
+      "date": "2025-12-26",
+      "origin": {
+        "code": "KTM",
+        "name": "Tribhuvan Int'l",
+        "city": "Kathmandu",
+        "timezone": "Asia/Kathmandu"
+      },
+      "destination": {
+        "code": "SIF",
+        "name": "Simara",
+        "city": null,
+        "timezone": "Asia/Kathmandu"
+      },
+      "scheduledDeparture": "2025-12-26T10:45:00Z",
+      "scheduledArrival": "2025-12-26T11:00:00Z",
+      "aircraftType": "ATR",
+      "fetchedAt": "2025-12-24T21:49:02.414Z"
     }
   },
   "cachedFlightStatus": {
@@ -144,8 +164,8 @@
       "estimatedArrival": "2025-12-26T11:40:00Z",
       "departureDelay": 0,
       "arrivalDelay": 0,
-      "lastUpdated": "2025-12-24T21:41:22.099Z",
-      "cachedAt": "2025-12-24T21:41:22.099Z"
+      "lastUpdated": "2025-12-24T21:50:44.718Z",
+      "cachedAt": "2025-12-24T21:50:44.718Z"
     },
     "AI180_2025-12-25_VIE": {
       "flightId": "AI180",
@@ -157,8 +177,8 @@
       "estimatedArrival": "2025-12-25T21:00:00Z",
       "departureDelay": 2400,
       "arrivalDelay": 2400,
-      "lastUpdated": "2025-12-24T21:41:22.694Z",
-      "cachedAt": "2025-12-24T21:41:22.694Z"
+      "lastUpdated": "2025-12-24T21:50:45.263Z",
+      "cachedAt": "2025-12-24T21:50:45.263Z"
     },
     "AI2424_2025-12-25_BOM": {
       "flightId": "AI2424",
@@ -170,8 +190,8 @@
       "estimatedArrival": "2025-12-25T03:40:00Z",
       "departureDelay": 300,
       "arrivalDelay": 0,
-      "lastUpdated": "2025-12-24T21:41:23.500Z",
-      "cachedAt": "2025-12-24T21:41:23.500Z"
+      "lastUpdated": "2025-12-24T21:50:46.054Z",
+      "cachedAt": "2025-12-24T21:50:46.054Z"
     },
     "AI217_2025-12-25_DEL": {
       "flightId": "AI217",
@@ -183,8 +203,21 @@
       "estimatedArrival": "2025-12-25T08:10:00Z",
       "departureDelay": 0,
       "arrivalDelay": 0,
-      "lastUpdated": "2025-12-24T21:41:24.296Z",
-      "cachedAt": "2025-12-24T21:41:24.296Z"
+      "lastUpdated": "2025-12-24T21:49:01.933Z",
+      "cachedAt": "2025-12-24T21:49:01.933Z"
+    },
+    "BHA559_2025-12-26_KTM": {
+      "flightId": "BHA559",
+      "date": "2025-12-26",
+      "status": "scheduled",
+      "statusText": "Scheduled",
+      "progress": 0,
+      "actualDeparture": null,
+      "estimatedArrival": "2025-12-26T11:00:00Z",
+      "departureDelay": 0,
+      "arrivalDelay": 0,
+      "lastUpdated": "2025-12-24T21:49:02.877Z",
+      "cachedAt": "2025-12-24T21:49:02.877Z"
     }
   }
 }

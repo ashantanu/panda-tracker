@@ -12,6 +12,13 @@ import {
 const DATA_FILE = join(process.cwd(), "data", "flights.json")
 const API_CALL_DELAY = 200
 
+// In-memory cache for serverless environments (Vercel)
+const memoryCache: {
+  flightStatus: Record<string, FlightStatus & { cachedAt: string }>
+} = {
+  flightStatus: {},
+}
+
 interface FlightEntry {
   id: string
   date: string
@@ -34,7 +41,12 @@ async function readFlightsData(): Promise<FlightsData> {
 }
 
 async function writeFlightsData(data: FlightsData): Promise<void> {
-  await writeFile(DATA_FILE, JSON.stringify(data, null, 2))
+  try {
+    await writeFile(DATA_FILE, JSON.stringify(data, null, 2))
+  } catch (error) {
+    // Silently fail on read-only filesystems (Vercel)
+    console.log("[Cache] Cannot write to filesystem, using memory cache only")
+  }
 }
 
 function sleep(ms: number): Promise<void> {
@@ -62,6 +74,9 @@ export async function GET(request: NextRequest) {
       flightsData.cachedFlightStatus = {}
     }
     
+    // Merge file cache with memory cache (memory cache takes precedence for fresh data)
+    const mergedStatus = { ...flightsData.cachedFlightStatus, ...memoryCache.flightStatus }
+    
     const statuses: FlightStatus[] = []
     let dataUpdated = false
     let apiCallCount = 0
@@ -73,7 +88,7 @@ export async function GET(request: NextRequest) {
         ? `${flight.id}_${flight.date}_${flight.origin}`
         : `${flight.id}_${flight.date}`
 
-      const cachedStatus = flightsData.cachedFlightStatus[cacheKey]
+      const cachedStatus = mergedStatus[cacheKey]
       const statusCacheAge = cachedStatus 
         ? Date.now() - new Date(cachedStatus.cachedAt).getTime() 
         : Infinity
@@ -109,10 +124,13 @@ export async function GET(request: NextRequest) {
         apiCallCount++
 
         if (freshStatus) {
-          flightsData.cachedFlightStatus[cacheKey] = {
+          const statusWithCache = {
             ...freshStatus,
             cachedAt: new Date().toISOString()
           }
+          // Cache in both file and memory
+          flightsData.cachedFlightStatus[cacheKey] = statusWithCache
+          memoryCache.flightStatus[cacheKey] = statusWithCache
           statuses.push(freshStatus)
           dataUpdated = true
         }
@@ -124,6 +142,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Try to save to file (will silently fail on Vercel)
     if (dataUpdated) {
       await writeFlightsData(flightsData)
     }

@@ -15,6 +15,16 @@ const DATA_FILE = join(process.cwd(), "data", "flights.json")
 // Rate limiting: minimum delay between API calls (ms)
 const API_CALL_DELAY = 200
 
+// In-memory cache for serverless environments (Vercel)
+// This persists across requests within the same serverless instance
+const memoryCache: {
+  flightDetails: Record<string, CachedFlightDetails>
+  flightStatus: Record<string, FlightStatus & { cachedAt: string }>
+} = {
+  flightDetails: {},
+  flightStatus: {},
+}
+
 interface FlightEntry {
   id: string
   date: string
@@ -37,7 +47,13 @@ async function readFlightsData(): Promise<FlightsData> {
 }
 
 async function writeFlightsData(data: FlightsData): Promise<void> {
-  await writeFile(DATA_FILE, JSON.stringify(data, null, 2))
+  try {
+    await writeFile(DATA_FILE, JSON.stringify(data, null, 2))
+  } catch (error) {
+    // Silently fail on read-only filesystems (Vercel)
+    // Data will still be cached in memory
+    console.log("[Cache] Cannot write to filesystem, using memory cache only")
+  }
 }
 
 function sleep(ms: number): Promise<void> {
@@ -60,6 +76,10 @@ export async function GET(request: NextRequest) {
       flightsData.cachedFlightStatus = {}
     }
     
+    // Merge file cache with memory cache (memory cache takes precedence for fresh data)
+    const mergedDetails = { ...flightsData.cachedFlightDetails, ...memoryCache.flightDetails }
+    const mergedStatus = { ...flightsData.cachedFlightStatus, ...memoryCache.flightStatus }
+    
     const results: {
       flightId: string
       date: string
@@ -76,7 +96,7 @@ export async function GET(request: NextRequest) {
         ? `${flight.id}_${flight.date}_${flight.origin}`
         : `${flight.id}_${flight.date}`
       
-      let details: CachedFlightDetails | null = flightsData.cachedFlightDetails[cacheKey] || null
+      let details: CachedFlightDetails | null = mergedDetails[cacheKey] || null
       let status: FlightStatus | null = null
 
       // === FLIGHT DETAILS ===
@@ -91,7 +111,9 @@ export async function GET(request: NextRequest) {
         apiCallCount++
         
         if (details) {
+          // Cache in both file and memory
           flightsData.cachedFlightDetails[cacheKey] = details
+          memoryCache.flightDetails[cacheKey] = details
           dataUpdated = true
         }
       }
@@ -100,7 +122,7 @@ export async function GET(request: NextRequest) {
       // Only fetch status for:
       // 1. Flights within tracking window (2 days)
       // 2. Flights that haven't completed yet
-      const cachedStatus = flightsData.cachedFlightStatus[cacheKey]
+      const cachedStatus = mergedStatus[cacheKey]
       const statusCacheAge = cachedStatus 
         ? Date.now() - new Date(cachedStatus.cachedAt).getTime() 
         : Infinity
@@ -122,10 +144,13 @@ export async function GET(request: NextRequest) {
           apiCallCount++
           
           if (freshStatus) {
-            flightsData.cachedFlightStatus[cacheKey] = {
+            const statusWithCache = {
               ...freshStatus,
               cachedAt: new Date().toISOString()
             }
+            // Cache in both file and memory
+            flightsData.cachedFlightStatus[cacheKey] = statusWithCache
+            memoryCache.flightStatus[cacheKey] = statusWithCache
             status = freshStatus
             dataUpdated = true
           }
@@ -152,7 +177,7 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Save updated cache
+    // Try to save to file (will silently fail on Vercel)
     if (dataUpdated) {
       await writeFlightsData(flightsData)
     }
