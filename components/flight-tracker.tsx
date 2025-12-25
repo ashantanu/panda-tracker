@@ -209,11 +209,12 @@ export function FlightTracker() {
 
   return (
     <div className="space-y-4">
-      {flights.map((flight) => {
+      {flights.map((flight, index) => {
         const status = getDisplayStatus(flight)
+        const originCode = flight.details?.origin.code || index
         return (
         <div
-            key={`${flight.flightId}-${flight.date}`}
+            key={`${flight.flightId}-${flight.date}-${originCode}`}
           className="bg-black border-2 border-pink-500 rounded p-4 shadow-[0_0_15px_rgba(236,72,153,0.5)] hover:shadow-[0_0_25px_rgba(236,72,153,0.8)] transition-shadow"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">

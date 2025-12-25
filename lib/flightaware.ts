@@ -321,7 +321,10 @@ export async function fetchFlightStatus(
     
     // Check if API status text indicates delay
     const apiStatusText = flight.status || ""
-    const apiIndicatesDelay = apiStatusText.toLowerCase().includes("delay")
+    const apiStatusLower = apiStatusText.toLowerCase()
+    const apiIndicatesDelay = apiStatusLower.includes("delay")
+    const apiIndicatesEnRoute = apiStatusLower.includes("en route") || apiStatusLower.includes("enroute")
+    const apiIndicatesTaxiing = apiStatusLower.includes("taxi")
 
     // Determine status
     let status: FlightStatus["status"] = "unknown"
@@ -337,8 +340,14 @@ export async function fetchFlightStatus(
       status = "landed"
       statusText = "Landed"
     } else if (flight.actual_off || flight.actual_out) {
-      status = flight.progress_percent > 0 ? "en_route" : "departed"
-      statusText = flight.progress_percent > 0 ? "En Route" : "Departed"
+      // Flight has departed - check if en route (either via progress or API status text)
+      const isEnRoute = flight.progress_percent > 0 || apiIndicatesEnRoute
+      status = isEnRoute ? "en_route" : "departed"
+      statusText = isEnRoute ? "En Route" : (apiIndicatesTaxiing ? "Taxiing" : "Departed")
+      // Add delay info if applicable
+      if (apiIndicatesDelay) {
+        statusText += " (Delayed)"
+      }
     } else if (effectiveDelay > 0 || apiIndicatesDelay) {
       status = "delayed"
       const delayMins = Math.round(effectiveDelay / 60)
@@ -352,12 +361,26 @@ export async function fetchFlightStatus(
       statusText = apiStatusText || "Scheduled"
     }
 
+    // Calculate progress - use FlightAware's value, or estimate from time if 0 but en route
+    let progress = flight.progress_percent || 0
+    if (progress === 0 && status === "en_route" && flight.actual_out) {
+      // Estimate progress based on time elapsed vs total flight time
+      const departed = new Date(flight.actual_out).getTime()
+      const eta = new Date(flight.estimated_in || flight.scheduled_in).getTime()
+      const now = Date.now()
+      const totalDuration = eta - departed
+      const elapsed = now - departed
+      if (totalDuration > 0 && elapsed > 0) {
+        progress = Math.min(99, Math.round((elapsed / totalDuration) * 100))
+      }
+    }
+
     return {
       flightId,
       date,
       status,
       statusText,
-      progress: flight.progress_percent || 0,
+      progress,
       actualDeparture: flight.actual_out || flight.actual_off || null,
       estimatedArrival: flight.estimated_in || flight.estimated_on || null,
       departureDelay: effectiveDelay,

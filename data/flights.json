@@ -2,7 +2,7 @@
   "flights": [
     {
       "id": "AI180",
-      "date": "2025-12-25",
+      "date": "2025-12-24",
       "origin": "SFO"
     },
     {
@@ -52,9 +52,9 @@
     }
   ],
   "cachedFlightDetails": {
-    "AI180_2025-12-25_SFO": {
+    "AI180_2025-12-24_SFO": {
       "flightId": "AI180",
-      "date": "2025-12-25",
+      "date": "2025-12-24",
       "origin": {
         "code": "SFO",
         "name": "San Francisco Int'l",
@@ -70,7 +70,7 @@
       "scheduledDeparture": "2025-12-25T00:30:00Z",
       "scheduledArrival": "2025-12-25T11:40:00Z",
       "aircraftType": "B77L",
-      "fetchedAt": "2025-12-24T21:31:12.434Z"
+      "fetchedAt": "2025-12-25T07:33:16.615Z"
     },
     "AI180_2025-12-25_VIE": {
       "flightId": "AI180",
@@ -90,7 +90,7 @@
       "scheduledDeparture": "2025-12-25T12:55:00Z",
       "scheduledArrival": "2025-12-25T20:20:00Z",
       "aircraftType": "B77L",
-      "fetchedAt": "2025-12-24T21:31:13.057Z"
+      "fetchedAt": "2025-12-25T07:33:17.718Z"
     },
     "AI2424_2025-12-25_BOM": {
       "flightId": "AI2424",
@@ -110,7 +110,7 @@
       "scheduledDeparture": "2025-12-25T01:30:00Z",
       "scheduledArrival": "2025-12-25T03:40:00Z",
       "aircraftType": "A20N",
-      "fetchedAt": "2025-12-24T21:36:22.102Z"
+      "fetchedAt": "2025-12-25T07:33:19.363Z"
     },
     "AI217_2025-12-25_DEL": {
       "flightId": "AI217",
@@ -130,7 +130,7 @@
       "scheduledDeparture": "2025-12-25T06:15:00Z",
       "scheduledArrival": "2025-12-25T08:10:00Z",
       "aircraftType": "A320",
-      "fetchedAt": "2025-12-24T21:36:23.133Z"
+      "fetchedAt": "2025-12-25T07:33:20.181Z"
     },
     "BHA559_2025-12-26_KTM": {
       "flightId": "BHA559",
@@ -150,22 +150,22 @@
       "scheduledDeparture": "2025-12-26T10:45:00Z",
       "scheduledArrival": "2025-12-26T11:00:00Z",
       "aircraftType": "ATR",
-      "fetchedAt": "2025-12-24T21:49:02.414Z"
+      "fetchedAt": "2025-12-25T07:33:21.614Z"
     }
   },
   "cachedFlightStatus": {
-    "AI180_2025-12-25_SFO": {
+    "AI180_2025-12-24_SFO": {
       "flightId": "AI180",
-      "date": "2025-12-25",
-      "status": "scheduled",
-      "statusText": "Scheduled",
-      "progress": 0,
-      "actualDeparture": null,
-      "estimatedArrival": "2025-12-26T11:40:00Z",
-      "departureDelay": 0,
-      "arrivalDelay": 0,
-      "lastUpdated": "2025-12-24T21:50:44.718Z",
-      "cachedAt": "2025-12-24T21:50:44.718Z"
+      "date": "2025-12-24",
+      "status": "en_route",
+      "statusText": "En Route (Delayed)",
+      "progress": 50,
+      "actualDeparture": "2025-12-25T01:48:00Z",
+      "estimatedArrival": "2025-12-25T13:11:57Z",
+      "departureDelay": 4680,
+      "arrivalDelay": 5517,
+      "lastUpdated": "2025-12-25T07:41:51.119Z",
+      "cachedAt": "2025-12-25T07:41:51.119Z"
     },
     "AI180_2025-12-25_VIE": {
       "flightId": "AI180",
@@ -174,37 +174,37 @@
       "statusText": "Scheduled / Delayed",
       "progress": 0,
       "actualDeparture": null,
-      "estimatedArrival": "2025-12-25T21:00:00Z",
-      "departureDelay": 2400,
-      "arrivalDelay": 2400,
-      "lastUpdated": "2025-12-24T21:50:45.263Z",
-      "cachedAt": "2025-12-24T21:50:45.263Z"
+      "estimatedArrival": "2025-12-25T21:50:00Z",
+      "departureDelay": 5400,
+      "arrivalDelay": 5400,
+      "lastUpdated": "2025-12-25T07:41:51.669Z",
+      "cachedAt": "2025-12-25T07:41:51.669Z"
     },
     "AI2424_2025-12-25_BOM": {
       "flightId": "AI2424",
       "date": "2025-12-25",
-      "status": "delayed",
-      "statusText": "Delayed 5 min",
-      "progress": 0,
-      "actualDeparture": null,
-      "estimatedArrival": "2025-12-25T03:40:00Z",
-      "departureDelay": 300,
-      "arrivalDelay": 0,
-      "lastUpdated": "2025-12-24T21:50:46.054Z",
-      "cachedAt": "2025-12-24T21:50:46.054Z"
+      "status": "landed",
+      "statusText": "Landed",
+      "progress": 100,
+      "actualDeparture": "2025-12-25T01:54:00Z",
+      "estimatedArrival": "2025-12-25T03:59:00Z",
+      "departureDelay": 1440,
+      "arrivalDelay": 1140,
+      "lastUpdated": "2025-12-25T03:58:18.190Z",
+      "cachedAt": "2025-12-25T03:58:18.190Z"
     },
     "AI217_2025-12-25_DEL": {
       "flightId": "AI217",
       "date": "2025-12-25",
-      "status": "scheduled",
-      "statusText": "Scheduled",
-      "progress": 0,
-      "actualDeparture": null,
-      "estimatedArrival": "2025-12-25T08:10:00Z",
-      "departureDelay": 0,
-      "arrivalDelay": 0,
-      "lastUpdated": "2025-12-24T21:49:01.933Z",
-      "cachedAt": "2025-12-24T21:49:01.933Z"
+      "status": "en_route",
+      "statusText": "En Route",
+      "progress": 77,
+      "actualDeparture": "2025-12-25T06:24:00Z",
+      "estimatedArrival": "2025-12-25T08:08:00Z",
+      "departureDelay": 540,
+      "arrivalDelay": -120,
+      "lastUpdated": "2025-12-25T07:42:03.396Z",
+      "cachedAt": "2025-12-25T07:42:03.396Z"
     },
     "BHA559_2025-12-26_KTM": {
       "flightId": "BHA559",
@@ -216,8 +216,8 @@
       "estimatedArrival": "2025-12-26T11:00:00Z",
       "departureDelay": 0,
       "arrivalDelay": 0,
-      "lastUpdated": "2025-12-24T21:49:02.877Z",
-      "cachedAt": "2025-12-24T21:49:02.877Z"
+      "lastUpdated": "2025-12-25T07:42:01.996Z",
+      "cachedAt": "2025-12-25T07:42:01.996Z"
     }
   }
 }

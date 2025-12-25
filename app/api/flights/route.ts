@@ -60,6 +60,10 @@ function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
+// Cache TTLs
+const STATUS_CACHE_TTL = 2 * 60 * 1000 // 2 minutes for status
+const DETAILS_CACHE_TTL = 30 * 60 * 1000 // 30 minutes for flight details (schedules can change)
+
 export async function GET(request: NextRequest) {
   const apiKey = process.env.FLIGHTAWARE_API_KEY
 
@@ -100,20 +104,31 @@ export async function GET(request: NextRequest) {
       let status: FlightStatus | null = null
 
       // === FLIGHT DETAILS ===
-      // Only fetch if not already cached (details don't change)
-      if (!details && isWithinTrackingWindow(flight.date)) {
-        console.log(`[API] Fetching details for ${flight.id} on ${flight.date}${flight.origin ? ` from ${flight.origin}` : ""}`)
+      // Fetch if not cached OR if cache is stale (schedules can change!)
+      const detailsCacheAge = details?.fetchedAt 
+        ? Date.now() - new Date(details.fetchedAt).getTime()
+        : Infinity
+      
+      const shouldRefetchDetails = !details || detailsCacheAge > DETAILS_CACHE_TTL
+      
+      if (shouldRefetchDetails && isWithinTrackingWindow(flight.date)) {
+        console.log(`[API] Fetching details for ${flight.id} on ${flight.date}${flight.origin ? ` from ${flight.origin}` : ""} (cache age: ${details ? Math.round(detailsCacheAge / 60000) + 'min' : 'none'})`)
         
         // Add delay to avoid rate limiting
         if (apiCallCount > 0) await sleep(API_CALL_DELAY)
         
-        details = await fetchFlightDetails(flight.id, flight.date, apiKey, flight.origin)
+        const freshDetails = await fetchFlightDetails(flight.id, flight.date, apiKey, flight.origin)
         apiCallCount++
         
-        if (details) {
+        if (freshDetails) {
+          // Log if schedule changed
+          if (details && details.scheduledDeparture !== freshDetails.scheduledDeparture) {
+            console.log(`[API] Schedule changed for ${flight.id}: ${details.scheduledDeparture} -> ${freshDetails.scheduledDeparture}`)
+          }
+          details = freshDetails
           // Cache in both file and memory
-          flightsData.cachedFlightDetails[cacheKey] = details
-          memoryCache.flightDetails[cacheKey] = details
+          flightsData.cachedFlightDetails[cacheKey] = freshDetails
+          memoryCache.flightDetails[cacheKey] = freshDetails
           dataUpdated = true
         }
       }
@@ -131,9 +146,6 @@ export async function GET(request: NextRequest) {
       const flightIsCompleted = cachedStatus && isFlightCompleted(cachedStatus)
       
       if (isWithinTrackingWindow(flight.date) && !flightIsCompleted) {
-        // Only refetch status if cache is older than 2 minutes
-        const STATUS_CACHE_TTL = 2 * 60 * 1000 // 2 minutes
-        
         if (statusCacheAge > STATUS_CACHE_TTL) {
           console.log(`[API] Fetching status for ${flight.id} on ${flight.date}`)
           
