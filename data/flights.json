@@ -164,8 +164,8 @@
       "estimatedArrival": "2025-12-25T13:11:57Z",
       "departureDelay": 4680,
       "arrivalDelay": 5517,
-      "lastUpdated": "2025-12-25T07:41:51.119Z",
-      "cachedAt": "2025-12-25T07:41:51.119Z"
+      "lastUpdated": "2025-12-25T07:46:51.700Z",
+      "cachedAt": "2025-12-25T07:46:51.700Z"
     },
     "AI180_2025-12-25_VIE": {
       "flightId": "AI180",
@@ -177,8 +177,8 @@
       "estimatedArrival": "2025-12-25T21:50:00Z",
       "departureDelay": 5400,
       "arrivalDelay": 5400,
-      "lastUpdated": "2025-12-25T07:41:51.669Z",
-      "cachedAt": "2025-12-25T07:41:51.669Z"
+      "lastUpdated": "2025-12-25T07:46:52.530Z",
+      "cachedAt": "2025-12-25T07:46:52.530Z"
     },
     "AI2424_2025-12-25_BOM": {
       "flightId": "AI2424",
@@ -198,13 +198,13 @@
       "date": "2025-12-25",
       "status": "en_route",
       "statusText": "En Route",
-      "progress": 77,
+      "progress": 84,
       "actualDeparture": "2025-12-25T06:24:00Z",
       "estimatedArrival": "2025-12-25T08:08:00Z",
       "departureDelay": 540,
       "arrivalDelay": -120,
-      "lastUpdated": "2025-12-25T07:42:03.396Z",
-      "cachedAt": "2025-12-25T07:42:03.396Z"
+      "lastUpdated": "2025-12-25T07:46:53.347Z",
+      "cachedAt": "2025-12-25T07:46:53.347Z"
     },
     "BHA559_2025-12-26_KTM": {
       "flightId": "BHA559",
@@ -216,8 +216,8 @@
       "estimatedArrival": "2025-12-26T11:00:00Z",
       "departureDelay": 0,
       "arrivalDelay": 0,
-      "lastUpdated": "2025-12-25T07:42:01.996Z",
-      "cachedAt": "2025-12-25T07:42:01.996Z"
+      "lastUpdated": "2025-12-25T07:46:54.059Z",
+      "cachedAt": "2025-12-25T07:46:54.059Z"
     }
   }
 }
