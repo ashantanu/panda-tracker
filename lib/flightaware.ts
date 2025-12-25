@@ -446,11 +446,15 @@ export function getTimezoneAbbr(timezone: string): string {
  * Format date for display
  */
 export function formatDate(isoString: string): string {
-  const date = new Date(isoString)
+  // Handle date-only strings (YYYY-MM-DD) by adding noon time to avoid timezone issues
+  // Otherwise, "2025-12-25" parsed as UTC midnight shows as Dec 24 in PST
+  const dateStr = isoString.includes("T") ? isoString : `${isoString}T12:00:00`
+  const date = new Date(dateStr)
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   })
 }
 

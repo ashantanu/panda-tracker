@@ -21,10 +21,11 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 rounded-lg blur-xl opacity-30 animate-pulse"></div>
           <div className="relative bg-black border-4 border-white rounded-lg p-6 shadow-[0_0_0_4px_#000,0_0_0_8px_#FFD700,0_0_20px_#FFD700]">
             <h1 className="text-6xl font-bold text-center font-mono tracking-wider text-white pixel-text mb-2 [text-shadow:4px_4px_0_#FFD700,8px_8px_0_#FF1493]">
-              SWETA TRACKER
+              PANDA TRACKER
             </h1>
-            <div className="flex items-center justify-center gap-4 text-yellow-400 font-mono text-sm">
+            <div className="flex flex-col items-center justify-center gap-2 text-yellow-400 font-mono text-sm">
               <span className="animate-pulse">▸ WILL SHE MAKE IT? ◂</span>
+              <span className="text-cyan-300 text-xs opacity-80">tracking my friend&apos;s outrageous itinerary adventure this holiday season 🐼✈️</span>
             </div>
           </div>
         </div>

@@ -1,60 +1,25 @@
 {
   "flights": [
     {
-      "id": "AI180",
-      "date": "2025-12-24",
+      "id": "AF83",
+      "date": "2025-12-25",
       "origin": "SFO"
     },
     {
-      "id": "AI180",
-      "date": "2025-12-25",
-      "origin": "VIE"
-    },
-    {
-      "id": "AI2424",
-      "date": "2025-12-25",
-      "origin": "BOM"
-    },
-    {
-      "id": "AI217",
-      "date": "2025-12-25",
-      "origin": "DEL"
-    },
-    {
-      "id": "BHA559",
+      "id": "AF1104",
       "date": "2025-12-26",
-      "origin": "KTM"
+      "origin": "CDG"
     },
     {
-      "id": "BHA552",
+      "id": "VY5825",
       "date": "2025-12-30",
-      "origin": "SIF"
-    },
-    {
-      "id": "AI218",
-      "date": "2025-12-30",
-      "origin": "KTM"
-    },
-    {
-      "id": "AI2881",
-      "date": "2025-12-30",
-      "origin": "DEL"
-    },
-    {
-      "id": "6E6087",
-      "date": "2026-01-02",
-      "origin": "BDQ"
-    },
-    {
-      "id": "AI179",
-      "date": "2026-01-03",
-      "origin": "BOM"
+      "origin": "FCO"
     }
   ],
   "cachedFlightDetails": {
-    "AI180_2025-12-24_SFO": {
-      "flightId": "AI180",
-      "date": "2025-12-24",
+    "AF83_2025-12-25_SFO": {
+      "flightId": "AF83",
+      "date": "2025-12-25",
       "origin": {
         "code": "SFO",
         "name": "San Francisco Int'l",
@@ -62,162 +27,63 @@
         "timezone": "America/Los_Angeles"
       },
       "destination": {
-        "code": "VIE",
-        "name": "Vienna Int'l (Schwechat)",
-        "city": "Vienna",
-        "timezone": "Europe/Vienna"
+        "code": "CDG",
+        "name": "Charles de Gaulle/Roissy",
+        "city": "Paris",
+        "timezone": "Europe/Paris"
       },
-      "scheduledDeparture": "2025-12-25T00:30:00Z",
-      "scheduledArrival": "2025-12-25T11:40:00Z",
-      "aircraftType": "B77L",
-      "fetchedAt": "2025-12-25T07:33:16.615Z"
+      "scheduledDeparture": "2025-12-25T23:40:00Z",
+      "scheduledArrival": "2025-12-26T10:35:00Z",
+      "aircraftType": "B77W",
+      "fetchedAt": "2025-12-25T00:35:38.075Z"
     },
-    "AI180_2025-12-25_VIE": {
-      "flightId": "AI180",
-      "date": "2025-12-25",
-      "origin": {
-        "code": "VIE",
-        "name": "Vienna Int'l (Schwechat)",
-        "city": "Vienna",
-        "timezone": "Europe/Vienna"
-      },
-      "destination": {
-        "code": "BOM",
-        "name": "Chatrapati Shivaji Int'l",
-        "city": "Mumbai",
-        "timezone": "Asia/Kolkata"
-      },
-      "scheduledDeparture": "2025-12-25T12:55:00Z",
-      "scheduledArrival": "2025-12-25T20:20:00Z",
-      "aircraftType": "B77L",
-      "fetchedAt": "2025-12-25T07:33:17.718Z"
-    },
-    "AI2424_2025-12-25_BOM": {
-      "flightId": "AI2424",
-      "date": "2025-12-25",
-      "origin": {
-        "code": "BOM",
-        "name": "Chatrapati Shivaji Int'l",
-        "city": "Mumbai",
-        "timezone": "Asia/Kolkata"
-      },
-      "destination": {
-        "code": "DEL",
-        "name": "Indira Gandhi Int'l",
-        "city": "New Delhi",
-        "timezone": "Asia/Kolkata"
-      },
-      "scheduledDeparture": "2025-12-25T01:30:00Z",
-      "scheduledArrival": "2025-12-25T03:40:00Z",
-      "aircraftType": "A20N",
-      "fetchedAt": "2025-12-25T07:33:19.363Z"
-    },
-    "AI217_2025-12-25_DEL": {
-      "flightId": "AI217",
-      "date": "2025-12-25",
-      "origin": {
-        "code": "DEL",
-        "name": "Indira Gandhi Int'l",
-        "city": "New Delhi",
-        "timezone": "Asia/Kolkata"
-      },
-      "destination": {
-        "code": "KTM",
-        "name": "Tribhuvan Int'l",
-        "city": "Kathmandu",
-        "timezone": "Asia/Kathmandu"
-      },
-      "scheduledDeparture": "2025-12-25T06:15:00Z",
-      "scheduledArrival": "2025-12-25T08:10:00Z",
-      "aircraftType": "A320",
-      "fetchedAt": "2025-12-25T07:33:20.181Z"
-    },
-    "BHA559_2025-12-26_KTM": {
-      "flightId": "BHA559",
+    "AF1104_2025-12-26_CDG": {
+      "flightId": "AF1104",
       "date": "2025-12-26",
       "origin": {
-        "code": "KTM",
-        "name": "Tribhuvan Int'l",
-        "city": "Kathmandu",
-        "timezone": "Asia/Kathmandu"
+        "code": "CDG",
+        "name": "Charles de Gaulle/Roissy",
+        "city": "Paris",
+        "timezone": "Europe/Paris"
       },
       "destination": {
-        "code": "SIF",
-        "name": "Simara",
-        "city": null,
-        "timezone": "Asia/Kathmandu"
+        "code": "FCO",
+        "name": "Leonardo da Vinci Int'l (Fiumicino Int'l)",
+        "city": "Rome",
+        "timezone": "Europe/Rome"
       },
-      "scheduledDeparture": "2025-12-26T10:45:00Z",
-      "scheduledArrival": "2025-12-26T11:00:00Z",
-      "aircraftType": "ATR",
-      "fetchedAt": "2025-12-25T07:33:21.614Z"
+      "scheduledDeparture": "2025-12-26T08:35:00Z",
+      "scheduledArrival": "2025-12-26T10:45:00Z",
+      "aircraftType": "A320",
+      "fetchedAt": "2025-12-25T00:35:39.417Z"
     }
   },
   "cachedFlightStatus": {
-    "AI180_2025-12-24_SFO": {
-      "flightId": "AI180",
-      "date": "2025-12-24",
-      "status": "en_route",
-      "statusText": "En Route (Delayed)",
-      "progress": 50,
-      "actualDeparture": "2025-12-25T01:48:00Z",
-      "estimatedArrival": "2025-12-25T13:11:57Z",
-      "departureDelay": 4680,
-      "arrivalDelay": 5517,
-      "lastUpdated": "2025-12-25T07:46:51.700Z",
-      "cachedAt": "2025-12-25T07:46:51.700Z"
-    },
-    "AI180_2025-12-25_VIE": {
-      "flightId": "AI180",
+    "AF83_2025-12-25_SFO": {
+      "flightId": "AF83",
       "date": "2025-12-25",
-      "status": "delayed",
-      "statusText": "Scheduled / Delayed",
+      "status": "scheduled",
+      "statusText": "Scheduled",
       "progress": 0,
       "actualDeparture": null,
-      "estimatedArrival": "2025-12-25T21:50:00Z",
-      "departureDelay": 5400,
-      "arrivalDelay": 5400,
-      "lastUpdated": "2025-12-25T07:46:52.530Z",
-      "cachedAt": "2025-12-25T07:46:52.530Z"
+      "estimatedArrival": "2025-12-26T10:01:55Z",
+      "departureDelay": 0,
+      "arrivalDelay": -1985,
+      "lastUpdated": "2025-12-25T00:44:43.598Z",
+      "cachedAt": "2025-12-25T00:44:43.598Z"
     },
-    "AI2424_2025-12-25_BOM": {
-      "flightId": "AI2424",
-      "date": "2025-12-25",
-      "status": "landed",
-      "statusText": "Landed",
-      "progress": 100,
-      "actualDeparture": "2025-12-25T01:54:00Z",
-      "estimatedArrival": "2025-12-25T03:59:00Z",
-      "departureDelay": 1440,
-      "arrivalDelay": 1140,
-      "lastUpdated": "2025-12-25T03:58:18.190Z",
-      "cachedAt": "2025-12-25T03:58:18.190Z"
-    },
-    "AI217_2025-12-25_DEL": {
-      "flightId": "AI217",
-      "date": "2025-12-25",
-      "status": "en_route",
-      "statusText": "En Route",
-      "progress": 84,
-      "actualDeparture": "2025-12-25T06:24:00Z",
-      "estimatedArrival": "2025-12-25T08:08:00Z",
-      "departureDelay": 540,
-      "arrivalDelay": -120,
-      "lastUpdated": "2025-12-25T07:46:53.347Z",
-      "cachedAt": "2025-12-25T07:46:53.347Z"
-    },
-    "BHA559_2025-12-26_KTM": {
-      "flightId": "BHA559",
+    "AF1104_2025-12-26_CDG": {
+      "flightId": "AF1104",
       "date": "2025-12-26",
       "status": "scheduled",
       "statusText": "Scheduled",
       "progress": 0,
       "actualDeparture": null,
-      "estimatedArrival": "2025-12-26T11:00:00Z",
+      "estimatedArrival": "2025-12-26T10:45:00Z",
       "departureDelay": 0,
       "arrivalDelay": 0,
-      "lastUpdated": "2025-12-25T07:46:54.059Z",
-      "cachedAt": "2025-12-25T07:46:54.059Z"
+      "lastUpdated": "2025-12-25T00:44:44.506Z",
+      "cachedAt": "2025-12-25T00:44:44.506Z"
     }
   }
 }
