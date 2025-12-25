@@ -35,7 +35,7 @@
       "scheduledDeparture": "2025-12-25T23:40:00Z",
       "scheduledArrival": "2025-12-26T10:35:00Z",
       "aircraftType": "B77W",
-      "fetchedAt": "2025-12-25T00:35:38.075Z"
+      "fetchedAt": "2025-12-25T07:50:37.740Z"
     },
     "AF1104_2025-12-26_CDG": {
       "flightId": "AF1104",
@@ -55,7 +55,7 @@
       "scheduledDeparture": "2025-12-26T08:35:00Z",
       "scheduledArrival": "2025-12-26T10:45:00Z",
       "aircraftType": "A320",
-      "fetchedAt": "2025-12-25T00:35:39.417Z"
+      "fetchedAt": "2025-12-25T07:50:39.363Z"
     }
   },
   "cachedFlightStatus": {
@@ -69,8 +69,8 @@
       "estimatedArrival": "2025-12-26T10:01:55Z",
       "departureDelay": 0,
       "arrivalDelay": -1985,
-      "lastUpdated": "2025-12-25T00:44:43.598Z",
-      "cachedAt": "2025-12-25T00:44:43.598Z"
+      "lastUpdated": "2025-12-25T07:50:38.492Z",
+      "cachedAt": "2025-12-25T07:50:38.492Z"
     },
     "AF1104_2025-12-26_CDG": {
       "flightId": "AF1104",
@@ -82,8 +82,8 @@
       "estimatedArrival": "2025-12-26T10:45:00Z",
       "departureDelay": 0,
       "arrivalDelay": 0,
-      "lastUpdated": "2025-12-25T00:44:44.506Z",
-      "cachedAt": "2025-12-25T00:44:44.506Z"
+      "lastUpdated": "2025-12-25T07:50:39.993Z",
+      "cachedAt": "2025-12-25T07:50:39.993Z"
     }
   }
 }
